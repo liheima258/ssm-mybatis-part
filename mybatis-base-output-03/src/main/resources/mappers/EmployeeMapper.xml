@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.mapper.EmployeeMapper">
+
+
+    <!-- 场景一： 返回单个简单类型 -->
+    <!--    Mybatis 内部给常用的数据类型设定了很多别名。
+        以 int 类型为例，可以写的名称有：int、integer、Integer、java.lang.Integer、Int、INT、INTEGER 等等。-->
+    <select id="selectEmpCount" resultType="int">
+        select count(*) from t_emp
+    </select>
+
+    <!-- 场景二： 返回实体类类型 -->
+    <!-- resultType属性：指定封装查询结果的Java实体类的全类名 -->
+    <!-- 对于自己定义的实体类，可以选择
+            1.在实体类上加注解 @Alias("Employee") 进行重命名
+            2.可以在全局配置文件中用 <typeAliases> 标签对单一指定类进行重命名
+            3.可以在全局配置文件中用 <typeAliases> 标签对某一包下的实体类进行统一重命名（此时别名为首字母小写的类名）-->
+    <!-- 如果数据库列名与实体类属性名不一致，需要在查询时重命名，如下例
+         也可以在全局配置文件中 设置 mapUnderscoreToCamelCase==true 从而系统会自动进行名称映射，如下列注释代码-->
+    <select id="selectEmployee" resultType="Employee">
+        select emp_id empId,emp_name empName,emp_salary empSalary from t_emp where emp_id=#{empId}
+    <!--select * from t_emp where emp_id=#{empId}-->
+    </select>
+
+    <!-- 场景三： 返回map类型 -->
+    <!-- resultType写map即可 -->
+    <!-- 适用于SQL查询返回的各个字段综合起来并不和任何一个现有的实体类对应，没法封装到实体类对象中。
+         如果能够封装成实体类类型的，就不使用Map类型。-->
+    <select id="selectEmpNameAndMaxSalary" resultType="map">
+        SELECT
+        emp_name 员工姓名,
+        emp_salary 员工工资,
+        (SELECT AVG(emp_salary) FROM t_emp) 部门平均工资
+        FROM t_emp WHERE emp_salary=(
+        SELECT MAX(emp_salary) FROM t_emp
+        )
+    </select>
+
+    <!-- 场景四： 返回list类型 -->
+    <!-- resultType不写list，写list中对象类型 -->
+    <select id="selectAll" resultType="Employee">
+        select * from t_emp
+    </select>
+
+    <!-- 场景五： 插入一个员工，获取员工对应的表中 自增长类型（auto） 主键 -->
+    <!-- useGeneratedKeys属性字面意思就是“使用生成的主键” -->
+    <!-- keyProperty属性可以指定主键在实体类对象中对应的属性名，Mybatis会将拿到的主键值存入这个属性 -->
+    <insert id="insertEmployee" useGeneratedKeys="true" keyProperty="empId">
+        insert into t_emp(emp_name,emp_salary)
+        values(#{empName},#{empSalary})
+    </insert>
+
+    <!-- 总结： 当实体类属性名称和数据库字段名称 不一致 时的解决办法
+         方法一： 在sql语句中将字段的别名设置成和实体类属性一致   select emp_id empId,emp_name empName,emp_salary empSalary from t_emp where emp_id=#{empId}
+         方法二： 全局配置自动识别驼峰式命名规则 ==> 只适用于单表查询  select emp_id,emp_name,emp_salary from t_emp where emp_id=#{empId}
+         方法三： 使用resultMap ==> 适用于单表查询和多表查询，如下例-->
+
+    <!-- 专门声明一个resultMap设定column到property之间的对应关系 -->
+    <!-- id是resultMap的标识，type仍旧写返回值类型即可 -->
+    <resultMap id="selectEmployeeByRMResultMap" type="Employee">
+
+        <!-- 使用id标签设置主键列和主键属性之间的对应关系 -->
+        <!-- column属性用于指定字段名；property属性用于指定Java实体类属性名 -->
+        <id column="emp_id" property="empId"/>
+
+        <!-- 使用result标签设置普通字段和Java实体类属性之间的关系 -->
+        <result column="emp_name" property="empName"/>
+
+        <result column="emp_salary" property="empSalary"/>
+
+    </resultMap>
+
+    <select id="selectEmployeeByRM" resultMap="selectEmployeeByRMResultMap">
+
+        select emp_id,emp_name,emp_salary from t_emp where emp_id=#{empId}
+
+    </select>
+
+
+</mapper>

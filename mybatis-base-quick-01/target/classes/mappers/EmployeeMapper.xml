@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace等于mapper接口类的全限定名,这样实现对应 -->
+<mapper namespace="com.atguigu.mapper.EmployeeMapper">
+
+    <!-- 查询使用 select标签
+            id = 方法名
+            resultType = 返回值类型
+            标签内编写SQL语句
+     -->
+    <select id="selectEmployee" resultType="com.atguigu.pojo.Employee">
+        <!-- #{empId}代表动态传入的参数,并且进行赋值!后面详细讲解 -->
+        select emp_id empId,emp_name empName, emp_salary empSalary from
+        t_emp where emp_id = #{empId}
+    </select>
+
+<!--    #{}形式 :  Mybatis会将SQL语句中的#{}转换为问号占位符。-->
+<!--    ${}形式 :  底层Mybatis做的是字符串拼接操作,通常不会采用${}的方式传值。-->
+<!--    一个特定的适用场景是：通过Java程序动态生成数据库表，表名部分需要Java程序通过参数传入；而JDBC对于表名部分是不能使用问号占位符的，此时只能使用${}形式-->
+<!--    结论：实际开发中，能用#{}实现的，肯定不用${}。-->
+<!--    特殊情况： 动态的不是值，是列名或者关键字，需要使用${}拼接-->
+
+</mapper>

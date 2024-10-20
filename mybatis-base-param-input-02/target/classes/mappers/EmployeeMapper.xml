@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.atguigu.mapper.EmployeeMapper">
+
+    <!--    场景一 ：单个简单类型参数，在#{}中可以随意命名，但是没有必要。通常还是使用和接口方法参数同名。-->
+    <select id="selectEmployee" resultType="com.atguigu.pojo.Employee">
+        select emp_id empId,emp_name empName, emp_salary empSalary from
+        t_emp where emp_id = #{empId}
+    </select>
+
+    <!--    场景二 ：实体类类型参数，在#{}中写对象的属性名-->
+    <insert id="insertEmployee">
+        insert into t_emp(emp_name,emp_salary) values(#{empName},#{empSalary})
+    </insert>
+
+    <!--    场景三 ：多个简单类型参数，通过@pram标记参数的名称-->
+    <update id="updateEmployee">
+        update t_emp set emp_salary=#{empSalary} where emp_id=#{empId}
+    </update>
+
+    <!--    场景四 ：有很多零散的参数需要传递，但是没有对应的实体类类型可以使用，可以都封装到Map中。在#{}中写Map中的key-->
+    <update id="updateEmployeeByMap">
+        update t_emp set emp_salary=#{empSalaryKey} where emp_id=#{empIdKey}
+    </update>
+</mapper>
